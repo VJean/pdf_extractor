@@ -55,6 +55,7 @@ namespace PDFExtractor
         {
             Console.WriteLine("Parsing "+ Path.GetFileName(srcFile));
 
+            ExtractBytes(srcFile, destFolder);
             Extract1(srcFile, destFolder);
             Extract2(srcFile, destFolder);
             ShowTextMargins(srcFile, destFolder);
@@ -66,8 +67,6 @@ namespace PDFExtractor
         /// <summary>
         /// With built-in PDFTextExtractor
         /// </summary>
-        /// <param name="src"></param>
-        /// <param name="dest"></param>
         private static void Extract1(string src, string destFolder)
         {
             //Custom destination folder
@@ -90,8 +89,6 @@ namespace PDFExtractor
         /// <summary>
         /// Extraction with render filters
         /// </summary>
-        /// <param name="src"></param>
-        /// <param name="dest"></param>
         private static void Extract2(string src, string destFolder)
         {
             //Custom destination folder
@@ -132,10 +129,32 @@ namespace PDFExtractor
         }
 
         /// <summary>
+        /// Extract bytes (to string) to see what's inside the pdf
+        /// </summary>
+        private static void ExtractBytes(string src, string destFolder)
+        {
+            //Custom destination folder
+            destFolder = destFolder + "Bytes/";
+            Directory.CreateDirectory(destFolder);
+            //Output file
+            string dest = destFolder + Path.GetFileNameWithoutExtension(src) + ".txt";
+
+            PdfReader reader = new PdfReader(src);
+            StreamWriter sw = new StreamWriter(dest);
+
+            for (int i = 1; i <= reader.NumberOfPages; i++)
+            {
+                byte[] bytesArray = reader.GetPageContent(i);
+
+                sw.WriteLine(System.Text.Encoding.UTF8.GetString(bytesArray));
+            }
+
+            sw.Close();
+        }
+
+        /// <summary>
         /// Print text boundaries (including header and footer)
         /// </summary>
-        /// <param name="src"></param>
-        /// <param name="destFolder"></param>
         private static void ShowTextMargins(string src, string destFolder)
         {
             //Custom destination folder
@@ -165,8 +184,6 @@ namespace PDFExtractor
         /// <summary>
         /// Testing a global rectangle fitting every page of every document (trying to bypass header and footer)
         /// </summary>
-        /// <param name="src"></param>
-        /// <param name="destFolder"></param>
         private static void TestRectangle(string src, string destFolder)
         {
             //Custom destination folder
